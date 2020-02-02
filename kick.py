@@ -27,7 +27,8 @@ def kick(func):
         
         # append boilerpate __main__ so we can call from command line
         f = open(fname, "a")  # a for append, w for overwrite
-        b = 'if __name__ == "__main__":\n     import os\n     foobar()\n'
+        b = 'if __name__ == "__main__":\n    import os\n    ' + str(func.__name__) + '()\n'
+        print(b)
         f.write(b)
         f.close()
         
