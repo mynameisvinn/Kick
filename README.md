@@ -1,20 +1,28 @@
 # PieKick
-evaluate python functions on the cloud by adding a single decorator. over time, the goal is to seamlessly link local source code with remote execution.
+evaluate functions on a remote machine by adding a single decorator.
 
 ## example
-we have the following code:
+we have the following code that is typically executes on a local notebook. 
 ```python
+import os
+
 def foobar():
-    for i in range(5):
-        print(i)
-    print(os.getpid())
+    res = 0
+    for i in range(3):
+        res += i
+    print(res)
+
+foobar()  # foobar() evaluated on local machine and prints 3
 ```
 
-we can add `@kick` decorator, which will automatically target execution on a remote host.
+if we want to evaluate `foobar()` on a remote machine, we add a single decorator. thats it: no `ssh`, `scp`, or moving bytes back and forth.
 ```python
 @kick
 def foobar():
-    for i in range(5):
-        print(i)
-    print(os.getpid())
+    res = 0
+    for i in range(3):
+        res += i
+    print(res)
+
+foobar()  # foobar() evaluated remotely and prints 3
 ```
