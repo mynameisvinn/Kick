@@ -6,14 +6,16 @@ def kick(func):
 
     # grab context from calling jupyter notebook so we can get its cells
     previous_frame = inspect.currentframe().f_back  # previous frame is the notebook
-    objects_calling_frame = inspect.getmembers(previous_frame)  # grab all objects from caller
-    cells =  objects_calling_frame[27][1]['_ih']  # this slice refers to global env from jupyter notebook
+    callers_objects = inspect.getmembers(previous_frame)  # grab all objects from caller
+    env = callers_objects[27][1]  # this slice refers to global env from jupyter notebook
+    cells =  env['_ih']  # cells
     # cells = globals()['_ih']
     
     def modfied_func():
-        
+
         # step 1: load everything into a single file
-        f = open("source_code.py", "w")
+        fname = env["fname"]
+        f = open(fname, "w")
         
         for idx, cell in enumerate(cells[:-1]):
             
@@ -34,15 +36,15 @@ def kick(func):
         # step 2: insert __main__
         calling_cell = cells[-1]
         print(calling_cell)
-        f = open("source_code.py", "a")  # a for append, w for overwrite
+        f = open(fname, "a")  # a for append, w for overwrite
         boilerplate = 'if __name__ == "__main__":\n' + '    print(' + calling_cell + ')'
         f.write(boilerplate)
         f.close()
         
         # step 3: ssh to remote
-        hostname = '3.94.21.39'
-        username="ubuntu"
-        key_filename="test.pem"
+        hostname = env["hostname"]
+        username=env["username"]
+        key_filename=env["key_filename"]
         # connect to remote https://blog.ruanbekker.com/blog/2018/04/23/using-paramiko-module-in-python-to-execute-remote-bash-commands/
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -50,11 +52,11 @@ def kick(func):
         
         # step 4: upload code
         ftp_client=ssh.open_sftp()  # https://medium.com/@keagileageek/paramiko-how-to-ssh-and-file-transfers-with-python-75766179de73
-        ftp_client.put("source_code.py", "source_code.py")
+        ftp_client.put(fname, fname)
         ftp_client.close()
         
         # step 5: execute code
-        stdin, stdout, stderr = ssh.exec_command("python3 source_code.py")
+        stdin, stdout, stderr = ssh.exec_command("python3 " + fname)
         
         # step 6: print results
         for line in stdout.read().splitlines():
