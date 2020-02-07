@@ -13,24 +13,21 @@ def kick(func):
     
     def modfied_func():
 
-        # step 1: load everything into a single file
+        # step 1: write cell entries into a single python file
         fname = env["fname"]
         f = open(fname, "w")
         
-        for idx, cell in enumerate(cells[:-1]):
+        for cell in cells[:-1]:  # the last one is the calling cell
             
-            # skip itself
-            if "from kick import kick" in cell:
-                pass
-            
-            else:
-                lines = cell.split("\n")
-                for line in lines:
-                    if "@kick" in line:
-                        pass
-                    else:
-                        f.write(line + "\n")
-                f.write("\n")
+            lines = cell.split("\n")
+            for line in lines:
+                if "@kick" in line:
+                    pass
+                elif "from kick import kick" in line:
+                    pass
+                else:
+                    f.write(line + "\n")
+            f.write("\n")
         f.close()
         
         # step 2: insert __main__
@@ -45,6 +42,7 @@ def kick(func):
         hostname = env["hostname"]
         username=env["username"]
         key_filename=env["key_filename"]
+
         # connect to remote https://blog.ruanbekker.com/blog/2018/04/23/using-paramiko-module-in-python-to-execute-remote-bash-commands/
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -55,7 +53,7 @@ def kick(func):
         ftp_client.put(fname, fname)
         ftp_client.close()
         
-        # step 5: execute code
+        # step 5: execute code remotely
         stdin, stdout, stderr = ssh.exec_command("python3 " + fname)
         
         # step 6: print results
