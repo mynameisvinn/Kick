@@ -4,3 +4,5 @@ test.pem
 foobar.py
 __pycache__/
 Example.ipynb
+source.py
+.DS_Store
