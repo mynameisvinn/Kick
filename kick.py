@@ -1,6 +1,7 @@
 import paramiko
 import inspect
 import os
+import time
 
 
 def kick(func):
@@ -68,9 +69,11 @@ def _install_packages(ssh_context, cells):
                 
     # step 2: pip install necessary packages
     packages = list(set(packages))
+    ssh_context.exec_command("sudo apt update")
     ssh_context.exec_command("yes | sudo apt-get install python3-pip")  # we want pip3, not regular pip
     for package in packages:
         ssh_context.exec_command("python3 -m pip install " + package)
+        time.sleep(0.5)
 
 
 def _push(ssh_context, fname):
