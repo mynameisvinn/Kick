@@ -47,6 +47,21 @@ def kick(func):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(hostname=hostname, username=username, key_filename=key_filename)
+
+
+        # step 3.5 pip install packages
+        packages = []
+        for cell in cells:  # all cells from jupyter notebook
+            lines = cell.split("\n")
+            for line in lines:
+                if "import" in line.split(" ")[0]:
+                    package_name = line.split(" ")[1]
+                    packages.append(package_name)
+                    
+        packages = list(set(packages))
+        ssh.exec_command("yes | sudo apt-get install python3-pip")  # we want pip3, not regular pip
+        for package in packages:
+            ssh.exec_command("python3 -m pip install " + package)
         
         # step 4: upload code
         ftp_client=ssh.open_sftp()  # https://medium.com/@keagileageek/paramiko-how-to-ssh-and-file-transfers-with-python-75766179de73
