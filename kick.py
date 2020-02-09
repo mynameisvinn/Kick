@@ -11,11 +11,12 @@ def kick(func):
     callers_objects = inspect.getmembers(prev_frame)  # grab all objects from caller
     env = callers_objects[27][1]  # this slice refers to global env from jupyter notebook
     cells =  env['_ih']  # all cells executed up to function call
+    print("initialize")
     
     def modfied_func():
 
         # step 1: write cell entries into a single file
-        fname = env["fname"]
+        fname = "temp.py"
         _copy(fname, cells)
         
         # step 2: insert __main__ to executable so it can be called from command line
@@ -72,7 +73,7 @@ def _identify_packages(cells):
     return list(set(packages))
 
 
-def _pip_install(ssh_context, packages):
+def _pip_install_package(ssh_context, packages):
     """pip install packages if it does not exist.
     """
     for package in packages:
@@ -84,7 +85,7 @@ def _pip_install(ssh_context, packages):
         if len(stdout.read().splitlines()) > 0:
             pass
         
-        # otherwise, grep returns nothing so we will install
+        # otherwise, grep returns nothing so pip install missing package
         else:
             stdin, stdout, stderr = ssh_context.exec_command("python3 -m pip install " + package)
             for line in stdout.read().splitlines():
@@ -102,14 +103,14 @@ def _install_packages(ssh_context, cells):
     _install_pip(ssh_context)
 
     # step 3: pip install necessary packages
-    _pip_install(ssh_context, packages)
+    _pip_install_package(ssh_context, packages)
         
         
 
 def _push(ssh_context, fname):
     """push code to remote machine.
     """
-    ftp_client = ssh_context.open_sftp()  # https://medium.com/@keagileageek/paramiko-how-to-ssh-and-file-transfers-with-python-75766179de73
+    ftp_client = ssh_context.open_sftp()
     ftp_client.put(fname, fname)
     ftp_client.close()
 
