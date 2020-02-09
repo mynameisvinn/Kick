@@ -33,8 +33,8 @@ def kick(func):
         # step 6: finally, remote execution
         _remote_exec(ssh, fname)
             
-        # step 7: clean up
-        # os.remove("source_code.py")
+        # step 7: clean up locally
+        os.remove(fname)
 
     return modfied_func
 
@@ -72,6 +72,26 @@ def _identify_packages(cells):
     return list(set(packages))
 
 
+def _pip_install(ssh_context, packages):
+    """pip install packages if it does not exist.
+    """
+    for package in packages:
+        
+        # check if package already exists
+        stdin, stdout, stderr = ssh_context.exec_command("pip3 list | grep -F " + package)
+
+        # if package exists, then grep will return its name so we can pass
+        if len(stdout.read().splitlines()) > 0:
+            pass
+        
+        # otherwise, grep returns nothing so we will install
+        else:
+            stdin, stdout, stderr = ssh_context.exec_command("python3 -m pip install " + package)
+            for line in stdout.read().splitlines():
+                print(line)
+            time.sleep(2)
+
+
 def _install_packages(ssh_context, cells):
     """install packages that were imported in the jupyter notebook.
     """
@@ -82,13 +102,9 @@ def _install_packages(ssh_context, cells):
     _install_pip(ssh_context)
 
     # step 3: pip install necessary packages
-    for package in packages:
-        try:
-            ssh_context.exec_command("python3 -m pip install " + package)
-            time.sleep(0.5)
-        except:
-            print("An exception occurred")
-
+    _pip_install(ssh_context, packages)
+        
+        
 
 def _push(ssh_context, fname):
     """push code to remote machine.
@@ -137,7 +153,13 @@ def _init_ssh(env):
 
 def _remote_exec(ssh_context, fname):
     """execute remotely and gather results.
+
+    TODO: pass results to shell
     """
     stdin, stdout, stderr = ssh_context.exec_command("python3 " + fname)
+    
     for line in stdout.read().splitlines():
+        print(line)
+
+    for line in stderr.read().splitlines():
         print(line)
