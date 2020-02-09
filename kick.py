@@ -49,16 +49,19 @@ def _make_executable(cells, fname):
     f.close()
 
 
-def _install_packages(ssh_context, cells):
-    """install packages that were imported in the jupyter notebook.
-    
+def _install_pip(ssh_context):
+    """apt get pip.
+    """
+    ssh_context.exec_command("sudo apt update")
+    ssh_context.exec_command("yes | sudo apt-get install python3-pip")  # we want pip3, not regular pip
+
+
+def _identify_packages(cells):
+    """
     iterate through every cell in the jupyter notebook. for each cell, inspect
     each line. if a line contains "import", then grab its corresponding 
     package.
-
-    once we have a list of required imports, we pip install necessary packages.
     """
-    # step 1: find imported packages
     packages = []
     for cell in cells:  # all cells from jupyter notebook
         lines = cell.split("\n")
@@ -66,14 +69,25 @@ def _install_packages(ssh_context, cells):
             if "import" in line.split(" ")[0]:
                 package_name = line.split(" ")[1]
                 packages.append(package_name)
+    return list(set(packages))
+
+
+def _install_packages(ssh_context, cells):
+    """install packages that were imported in the jupyter notebook.
+    """
+    # step 1: find imported packages
+    packages =_identify_packages(cells)
                 
-    # step 2: pip install necessary packages
-    packages = list(set(packages))
-    ssh_context.exec_command("sudo apt update")
-    ssh_context.exec_command("yes | sudo apt-get install python3-pip")  # we want pip3, not regular pip
+    # step 2: fetch pip 
+    _install_pip(ssh_context)
+
+    # step 3: pip install necessary packages
     for package in packages:
-        ssh_context.exec_command("python3 -m pip install " + package)
-        time.sleep(0.5)
+        try:
+            ssh_context.exec_command("python3 -m pip install " + package)
+            time.sleep(0.5)
+        except:
+            print("An exception occurred")
 
 
 def _push(ssh_context, fname):
