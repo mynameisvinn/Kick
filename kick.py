@@ -93,6 +93,15 @@ def _pip_install_package(ssh_context, packages):
             time.sleep(2)
 
 
+def _verify_pip_install(ssh_context, packages):
+    for package in packages:
+        stdin, stdout, stderr = ssh_context.exec_command('python3 -c "import ' + package + '"')
+        if len(stderr.read().splitlines()) > 0:
+            print("error", package)
+            for line in stderr.read().splitlines():
+                print(line)
+
+
 def _install_packages(ssh_context, cells):
     """install packages that were imported in the jupyter notebook.
     """
@@ -104,7 +113,9 @@ def _install_packages(ssh_context, cells):
 
     # step 3: pip install necessary packages
     _pip_install_package(ssh_context, packages)
-        
+
+    # step 4: verify that imported package was successful by importing it from the command line
+    _verify_pip_install(ssh_context, packages)
         
 
 def _push(ssh_context, fname):
@@ -162,5 +173,7 @@ def _remote_exec(ssh_context, fname):
     for line in stdout.read().splitlines():
         print(line)
 
-    for line in stderr.read().splitlines():
-        print(line)
+    if len(stderr.read().splitlines()) > 0:
+        print("error")
+        for line in stderr.read().splitlines():
+            print(line)
