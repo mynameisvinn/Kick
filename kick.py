@@ -34,8 +34,8 @@ def kick(func):
         # step 6: finally, remote execution
         _remote_exec(ssh, fname)
             
-        # step 7: clean up locally
-        os.remove(fname)
+        # step 7: clean up locally (but not the remote machine)
+        # os.remove(fname)
 
     return modfied_func
 
@@ -45,7 +45,7 @@ def _make_executable(cells, fname):
     """
     caller = cells[-1]  # get the last cell, which is the caller
     f = open(fname, "a")  # a for append, w for overwrite
-    scope = 'if __name__ == "__main__":\n' + '    print(' + caller + ')'
+    scope = 'if __name__ == "__main__":\n' + '    ' + caller
     f.write(scope)
     f.close()
 
@@ -166,14 +166,13 @@ def _init_ssh(env):
 def _remote_exec(ssh_context, fname):
     """execute remotely and gather results.
 
-    TODO: pass results to shell
     """
     stdin, stdout, stderr = ssh_context.exec_command("python3 " + fname)
+
+    if len(stderr.read().splitlines()) > 0:
+        print("execution error")
+        for line in stderr.read().splitlines():
+            print(line)
     
     for line in stdout.read().splitlines():
         print(line)
-
-    if len(stderr.read().splitlines()) > 0:
-        print("error")
-        for line in stderr.read().splitlines():
-            print(line)
