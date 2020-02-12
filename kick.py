@@ -45,7 +45,7 @@ def _make_executable(cells, fname):
     """
     caller = cells[-1]  # get the last cell, which is the caller
     f = open(fname, "a")  # a for append, w for overwrite
-    scope = 'if __name__ == "__main__":\n' + '    ' + caller
+    scope = 'if __name__ == "__main__":\n' + '    print(' + caller +  ")"
     f.write(scope)
     f.close()
 
