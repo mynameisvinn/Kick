@@ -13,7 +13,7 @@ def kick(func):
     cells =  env['_ih']  # all cells executed up to function call
     print("initialize")
     
-    def modfied_func():
+    def modfied_func(*args):
 
         # step 1: write cell entries into a single file
         fname = "temp.py"
