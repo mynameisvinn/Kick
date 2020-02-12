@@ -76,17 +76,20 @@ def _identify_packages(cells):
 def _pip_install_package(ssh_context, packages):
     """pip install packages if it does not exist.
     """
+
     for package in packages:
         
         # check if package already exists
         stdin, stdout, stderr = ssh_context.exec_command("pip3 list | grep -F " + package)
 
         # if package exists, then grep will return its name so we can pass
-        if len(stdout.read().splitlines()) > 0:
+        if (len(stdout.read().splitlines()) > 0) or (len(stderr.read().splitlines()) > 0):
+            print(">> ", package, "found")
             pass
         
         # otherwise, grep returns nothing so pip install missing package
         else:
+            print(">> pip installing packages...")
             stdin, stdout, stderr = ssh_context.exec_command("python3 -m pip install " + package)
             for line in stdout.read().splitlines():
                 print(line)
