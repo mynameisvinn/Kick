@@ -77,32 +77,33 @@ def _pip_install_package(ssh_context, packages):
     """pip install packages if it does not exist.
     """
 
+
+    # get host packages
+    stdin, stdout, stderr = ssh_context.exec_command("pip3 list")
+    host_packages = stdout.read().decode()
+
     for package in packages:
         
-        # check if package already exists
-        stdin, stdout, stderr = ssh_context.exec_command("pip3 list | grep -F " + package)
-
-        # if package exists, then grep will return its name so we can pass
-        if (len(stdout.read().splitlines()) > 0) or (len(stderr.read().splitlines()) > 0):
+        if package in host_packages:
             print(">> ", package, "found")
             pass
         
         # otherwise, grep returns nothing so pip install missing package
         else:
-            print(">> pip installing packages...")
+            print(">> pip installing package...")
             stdin, stdout, stderr = ssh_context.exec_command("python3 -m pip install " + package)
-            for line in stdout.read().splitlines():
-                print(line)
+            output = stdout.read().decode()
+            print(output)
             time.sleep(2)
 
 
 def _verify_pip_install(ssh_context, packages):
     for package in packages:
         stdin, stdout, stderr = ssh_context.exec_command('python3 -c "import ' + package + '"')
-        if len(stderr.read().splitlines()) > 0:
+        error = stderr.read().decode()
+        if error:
             print("error", package)
-            for line in stderr.read().splitlines():
-                print(line)
+            print(error)
 
 
 def _install_packages(ssh_context, cells):
@@ -156,13 +157,17 @@ def _init_ssh(env):
     env refers the global environment of the calling jupyter notebook.
     """
     hostname = env["hostname"]
-    username = env["username"]
-    key_filename = env["key_filename"]
+    username = env.get("username")
+    key_filename = env.get("key_filename")
+    password = env.get("password")
+    port = env.get("port", 22)
 
     # connect to remote https://blog.ruanbekker.com/blog/2018/04/23/using-paramiko-module-in-python-to-execute-remote-bash-commands/
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostname, username=username, key_filename=key_filename)
+    # ssh.connect(hostname=hostname)
+    ssh.connect(hostname=hostname, username=username, key_filename=key_filename, password=password, port=port)
+    # ssh.connect(hostname=hostname, username='root', password='root', port=32771)
     return ssh
 
 
@@ -171,11 +176,11 @@ def _remote_exec(ssh_context, fname):
 
     """
     stdin, stdout, stderr = ssh_context.exec_command("python3 " + fname)
+    error = stderr.read().decode()
+    output = stdout.read().decode()
 
-    if len(stderr.read().splitlines()) > 0:
+    if error:
         print("execution error")
-        for line in stderr.read().splitlines():
-            print(line)
+        print(error)
     
-    for line in stdout.read().splitlines():
-        print(line)
+    print(output)
