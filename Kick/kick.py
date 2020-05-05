@@ -73,7 +73,7 @@ def _copy(fname, cells):
         for line in lines:
             if "@kick" in line:
                 pass
-            elif "from kick import kick" in line:
+            elif "Kick" in line:
                 pass
             else:
                 f.write(line + "\n")
