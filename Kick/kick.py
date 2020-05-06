@@ -1,33 +1,34 @@
-from install import _install_packages
+from .install import _install_packages
 
 import paramiko
 import inspect
 import os
 import time
+import configparser
 
 
 def kick(func):
 
     # grab context from calling jupyter notebook
     prev_frame = inspect.currentframe().f_back  # previous frame is the notebook
-    callers_objects = inspect.getmembers(prev_frame)  # grab all objects from caller
+    callers_objects = inspect.getmembers(prev_frame)  # grab all objects from caller's global env
     env = callers_objects[27][1]  # this slice refers to global env from jupyter notebook
-    cells =  env['_ih']  # all cells executed up to function call
-    print("initialize")
+    cells =  env['_ih']  # all executed cells up to function call
+    print(">> initialize")
     
     def modfied_func(*args):
 
-        # step 1: write cell entries into a single file
+        # step 1: write cell entries into a single python source file
         fname = "temp.py"
         _copy(fname, cells)
         
         # step 2: insert __main__ to executable so it can be called from command line
         _make_executable(cells, fname)
         
-        # step 3: ssh to remote machine
-        ssh = _init_ssh(env)
+        # step 3: ssh to remote machine with the proper credentials
+        ssh = _init_ssh()
 
-        # step 4: once we're in remote, install python modules prior to execution
+        # step 4: once we're in remote, install necessary python modules prior to execution
         _install_packages(ssh, cells)
         
         # step 5: push code from origin to remote
@@ -47,7 +48,7 @@ def _make_executable(cells, fname):
     """
     caller = cells[-1]  # get the last cell, which is the caller
     f = open(fname, "a")  # a for append, w for overwrite
-    scope = 'if __name__ == "__main__":\n' + '    print(' + caller +  ")"
+    scope = 'if __name__ == "__main__":\n' + '    print(' + caller + ")"
     f.write(scope)
     f.close()
 
@@ -80,15 +81,21 @@ def _copy(fname, cells):
         f.write("\n")
     f.close()
 
+def _fetch_credentials():
+    config = configparser.RawConfigParser()
+    config.read('config.properties')
+    return  dict(config.items('SECTION_NAME'))
 
-def _init_ssh(env):
+def _init_ssh():
     """initialize ssh connection to remote and return a ssh context.
 
     env refers the global environment of the calling jupyter notebook.
     """
-    hostname = env["hostname"]
-    username = env["username"]
-    key_filename = env["key_filename"]
+    details_dict = _fetch_credentials()
+
+    hostname = details_dict["hostname"]
+    username = details_dict["username"]
+    key_filename = details_dict["key_filename"]
 
     # connect to remote https://blog.ruanbekker.com/blog/2018/04/23/using-paramiko-module-in-python-to-execute-remote-bash-commands/
     ssh = paramiko.SSHClient()
