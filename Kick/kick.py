@@ -7,7 +7,7 @@ import time
 import configparser
 
 
-def kick(func):
+def kick2gpu(func):
 
     # grab context from calling jupyter notebook
     prev_frame = inspect.currentframe().f_back  # previous frame is the notebook
