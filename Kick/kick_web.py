@@ -1,11 +1,9 @@
 from .install import _install_packages
 from .client import up
 
-import paramiko
 import inspect
 import os
 import time
-import configparser
 import requests
 
 
@@ -24,25 +22,23 @@ def kick_web(func):
         fname = "temp.py"
         _copy(fname, cells)
         
-        # step 2: insert __main__ to so it can be called from command line
-        _make_executable(cells, fname)
+        # step 2: identify calling method
+        _append(cells, fname)
         
-        # step 3: send source to server through socket
-        port = 7725
-        up(port, fname)
+        # step 3: send source to server
+        port = 9510
+        res = up(port, fname)
 
-        # return res
-
+        # step 4: return result
+        return res
 
     return modified_func
 
 
-def _make_executable(cells, fname):
-    """make python script executable by appending __main__.
-    """
-    caller = cells[-1]  # get the last cell, which is the caller
+def _append(cells, fname):
+    caller = cells[-1]  # last cell contains method call
     f = open(fname, "a")  # a for append, w for overwrite
-    scope = 'if __name__ == "__main__":\n' + '    print(' + caller + ")"
+    scope = 'res = ' + caller  # res tells server where to save results
     f.write(scope)
     f.close()
 
