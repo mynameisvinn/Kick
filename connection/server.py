@@ -48,9 +48,9 @@ def receive_file(c, out_fname):
 
 
 if __name__ == '__main__':
-
+    print("server up")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    endpoint = ("localhost", 4001)
+    endpoint = ('', 4001)  # https://stackoverflow.com/questions/8033552/python-socket-bind-to-any-ip
     s.bind(endpoint)
     s.listen(5)
     while True:
