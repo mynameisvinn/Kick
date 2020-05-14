@@ -8,3 +8,4 @@ source.py
 .DS_Store
 data/
 piekick.pem
+Kick/connection/barfoo.py
