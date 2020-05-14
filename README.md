@@ -1,8 +1,8 @@
 # PieKick
-evaluate functions on a remote machine by adding a single decorator.
+evaluate functions on a remote machine with a single decorator.
 
 ## example
-we have code that executes locally. 
+this code snippet executes locally. 
 ```python
 def foobar():
     res = 0
@@ -13,7 +13,7 @@ def foobar():
 foobar()  # foobar() evaluated on local machine and prints 3
 ```
 
-we can evaluate `foobar()` on a remote machine (eg your own ec2 instance) by adding a single decorator `@kick`. thats it: no `ssh`, `scp`, or moving bytes back and forth.
+we can evaluate `foobar()` on a remote machine (eg ec2) with a single decorator `@kick`. no `ssh`, `scp`, or moving bytes back and forth.
 ```python
 from kick import kick
 
@@ -24,5 +24,5 @@ def foobar():
         res += i
     print(res)
 
-foobar()  # foobar() evaluated remotely and prints 3
+foobar()  # foobar() remote execution
 ```

@@ -1,4 +1,4 @@
-
+# testsdfs
 
 import numpy as np
 
@@ -8,4 +8,4 @@ b = np.random.rand(4, 4)
 def matmul(a, b):
     return a.dot(b)
 
-res = matmul(a, b)
+res = matmul(a, b) * 100

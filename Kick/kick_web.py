@@ -1,10 +1,5 @@
-from .install import _install_packages
 from .client import up
-
 import inspect
-import os
-import time
-import requests
 
 
 def kick_web(func):
@@ -18,7 +13,7 @@ def kick_web(func):
     
     def modified_func(*args):
 
-        # step 1: write cell entries into a single source file
+        # step 1: write cell entries to a single file, which will be sent to server
         fname = "temp.py"
         _copy(fname, cells)
         
@@ -26,7 +21,7 @@ def kick_web(func):
         _append(cells, fname)
         
         # step 3: send source to server
-        port = 9510
+        port = 4001
         res = up(port, fname)
 
         # step 4: return result
@@ -44,17 +39,17 @@ def _append(cells, fname):
 
 
 def _copy(fname, cells):
-    """copy code from jupyter notebook cells into a single python file.
+    """copy code from notebook cells to a file.
     """
     f = open(fname, "w")
 
     # iterate through each cell...    
-    for cell in cells[:-1]:  # the last one is the calling cell, to be ignored
+    for cell in cells[:-1]:  # the last one is the calling cell, to be ignored for now
         
         # inside each cell, iterate through each line...
         lines = cell.split("\n")
         for line in lines:
-            if "@kick" in line:
+            if ("@kick" in line):
                 pass
             elif "Kick" in line:
                 pass
