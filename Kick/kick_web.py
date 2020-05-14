@@ -1,13 +1,15 @@
 from .install import _install_packages
+from .client import streaming_pipe
 
 import paramiko
 import inspect
 import os
 import time
 import configparser
+import requests
 
 
-def kick(func):
+def kick_web(func):
 
     # grab context from calling jupyter notebook
     prev_frame = inspect.currentframe().f_back  # previous frame is the notebook
@@ -25,20 +27,11 @@ def kick(func):
         # step 2: insert __main__ to executable file so it can be called from command line
         _make_executable(cells, fname)
         
-        # step 3: ssh to remote machine with the proper credentials
-        ssh = _init_ssh()
+        # step 3: post to server
+        streaming_pipe(fname)
 
-        # step 4: once we're in remote, install necessary python modules prior to execution
-        _install_packages(ssh, cells)
-        
-        # step 5: push code from origin to remote
-        _push(ssh, fname)
-        
-        # step 6: finally, remote execution
-        _remote_exec(ssh, fname)
-            
-        # step 7: clean up locally (but not the remote machine)
-        # os.remove(fname)
+        # return some answer
+
 
     return modfied_func
 
