@@ -1,5 +1,5 @@
 from .install import _install_packages
-from .client import streaming_pipe
+from .client import up
 
 import paramiko
 import inspect
@@ -18,22 +18,23 @@ def kick_web(func):
     cells =  env['_ih']  # all executed cells up to function call
     print(">> initialize")
     
-    def modfied_func(*args):
+    def modified_func(*args):
 
-        # step 1: write cell entries into a single python source file
+        # step 1: write cell entries into a single source file
         fname = "temp.py"
         _copy(fname, cells)
         
-        # step 2: insert __main__ to executable file so it can be called from command line
+        # step 2: insert __main__ to so it can be called from command line
         _make_executable(cells, fname)
         
-        # step 3: post to server
-        streaming_pipe(fname)
+        # step 3: send source to server through socket
+        port = 7725
+        up(port, fname)
 
-        # return some answer
+        # return res
 
 
-    return modfied_func
+    return modified_func
 
 
 def _make_executable(cells, fname):
@@ -44,14 +45,6 @@ def _make_executable(cells, fname):
     scope = 'if __name__ == "__main__":\n' + '    print(' + caller + ")"
     f.write(scope)
     f.close()
-
-
-def _push(ssh_context, fname):
-    """push code to remote machine.
-    """
-    ftp_client = ssh_context.open_sftp()
-    ftp_client.put(fname, fname)
-    ftp_client.close()
 
 
 def _copy(fname, cells):
@@ -73,40 +66,3 @@ def _copy(fname, cells):
                 f.write(line + "\n")
         f.write("\n")
     f.close()
-
-def _fetch_credentials():
-    config = configparser.RawConfigParser()
-    config.read('config.properties')
-    return  dict(config.items('SECTION_NAME'))
-
-def _init_ssh():
-    """initialize ssh connection to remote and return a ssh context.
-
-    env refers the global environment of the calling jupyter notebook.
-    """
-    details_dict = _fetch_credentials()
-
-    hostname = details_dict["hostname"]
-    username = details_dict["username"]
-    key_filename = details_dict["key_filename"]
-
-    # connect to remote https://blog.ruanbekker.com/blog/2018/04/23/using-paramiko-module-in-python-to-execute-remote-bash-commands/
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostname, username=username, key_filename=key_filename)
-    return ssh
-
-
-def _remote_exec(ssh_context, fname):
-    """execute remotely and gather results.
-
-    """
-    stdin, stdout, stderr = ssh_context.exec_command("python3 " + fname)
-
-    if len(stderr.read().splitlines()) > 0:
-        print("execution error")
-        for line in stderr.read().splitlines():
-            print(line)
-    
-    for line in stdout.read().splitlines():
-        print(line)
