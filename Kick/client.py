@@ -19,7 +19,7 @@ def up(port, fname):
     """
     # create socket and connect with server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('localhost', port)) 
+    s.connect(('3.223.135.38', port)) 
 
     # send source to server
     with open(fname, "rb") as f:
@@ -28,7 +28,8 @@ def up(port, fname):
         
     # receive results from server and unpack bytes
     res = s.recv(1024)
-    o = from_bytes(res)  # https://markhneedham.com/blog/2018/04/07/python-serialize-deserialize-numpy-2d-arrays/
+    # o = from_bytes(res)  # https://markhneedham.com/blog/2018/04/07/python-serialize-deserialize-numpy-2d-arrays/
+    o = np.frombuffer(res)
     print(o)
     
     # close the connection 
