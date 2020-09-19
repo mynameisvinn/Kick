@@ -19,7 +19,7 @@ def up(port, fname):
     """
     # create socket and connect with server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('3.223.135.38', port)) 
+    s.connect(('3.236.152.182', port)) 
 
     # send source to server
     with open(fname, "rb") as f:

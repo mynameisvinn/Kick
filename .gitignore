@@ -9,3 +9,4 @@ source.py
 data/
 piekick.pem
 Kick/connection/barfoo.py
+aws_key.pem

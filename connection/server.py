@@ -1,9 +1,4 @@
-"""
-spin up server for remote execution. 
-
-server application should be run on ec2 instance with $ python server.py
-
-https://www.geeksforgeeks.org/socket-programming-python/
+"""launch server application for remote code execution.
 """
 
 import socket
@@ -11,9 +6,11 @@ import numpy as np
 import sys
 import subprocess
 import jsonpickle
+import argparse
+
 
 def execute(fname):
-    """evaluate python source and return res to client.
+    """execute python source code and return res to client.
 
     evaluate python source and place its runtime environment into namespace, a dict. then, extract res
     from environment and return it to client.
@@ -22,7 +19,7 @@ def execute(fname):
     # https://github.com/mynameisvinn/piegrad/blob/master/PieGrad.py
     # https://stackoverflow.com/questions/16877323/getting-return-information-from-another-python-script
     # https://stackoverflow.com/questions/6357361/alternative-to-execfile-in-python-3
-    namespace={}
+    namespace = {}  # this is the server's runtime env
     with open(fname, "rb") as source_file:
         code = compile(source_file.read(), fname, "exec")
     exec(code, namespace)  # put results in namespace env 
@@ -61,19 +58,26 @@ def from_bytes(b):
     o = jsonpickle.decode(j)  # from json to python object
     return o
 
+
 if __name__ == '__main__':
     print(">> server up")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('port', type=int, help='server port')
+    args = parser.parse_args()
+
+    # set up an endpoint for communication with client
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    endpoint = ('', 4002)  # https://stackoverflow.com/questions/8033552/python-socket-bind-to-any-ip
+    endpoint = ('', args.port)  # https://stackoverflow.com/questions/8033552/python-socket-bind-to-any-ip
     s.bind(endpoint)
     s.listen(5)
     while True:
 
         # step 1: connect with incoming clinet
         c, addr = s.accept()      
-        print('connected to', addr )
+        print('successfully connected to', addr )
 
-        # step 2: receive source file from client and save it
+        # step 2: receive source file from client and save it as "barfoo"
         temp_fname = "barfoo.py"
         _ = receive_file(c, temp_fname)
 
@@ -87,5 +91,7 @@ if __name__ == '__main__':
         # step 5: send bytes to client
         c.send(b)
 
-        # close connection 
+        # close connection with client
         c.close() 
+
+        print("closed connection with client")
