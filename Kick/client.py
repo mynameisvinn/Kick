@@ -2,6 +2,8 @@ import socket
 import numpy as np
 import jsonpickle
 
+from .utils import fetch
+
 def from_bytes(b):
     """convert bytes back to python object.
 
@@ -12,14 +14,18 @@ def from_bytes(b):
     return o
 
 
-def up(port, fname):
+def up(fname):
     """send fname to server and retrieve corresponding results.
     
     # https://stackoverflow.com/questions/9382045/send-a-file-through-sockets-in-python
     """
+    # get endpoint from config file
+    hostname = "3.236.152.182"
+    port = 1111
+
     # create socket and connect with server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('3.236.152.182', port)) 
+    s.connect((hostname, port)) 
 
     # send source to server
     with open(fname, "rb") as f:
@@ -28,9 +34,8 @@ def up(port, fname):
         
     # receive results from server and unpack bytes
     res = s.recv(1024)
-    # o = from_bytes(res)  # https://markhneedham.com/blog/2018/04/07/python-serialize-deserialize-numpy-2d-arrays/
-    o = np.frombuffer(res)
-    print(o)
+    o = from_bytes(res)  # https://markhneedham.com/blog/2018/04/07/python-serialize-deserialize-numpy-2d-arrays/
+    # o = np.frombuffer(res)
     
     # close the connection 
     if res:

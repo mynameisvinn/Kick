@@ -20,9 +20,8 @@ def kick_web(func):
         # step 2: identify calling method
         _append(cells, fname)
         
-        # step 3: send source to server
-        port = 4001
-        res = up(port, fname)
+        # step 3: send source code to remote server
+        res = up(fname)  # server's endpoints are found in config properties file
 
         # step 4: return result
         return res
@@ -31,6 +30,8 @@ def kick_web(func):
 
 
 def _append(cells, fname):
+    """modify source code. 
+    """
     caller = cells[-1]  # last cell contains method call
     f = open(fname, "a")  # a for append, w for overwrite
     scope = 'res = ' + caller  # res tells server where to save results

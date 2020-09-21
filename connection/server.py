@@ -60,11 +60,12 @@ def from_bytes(b):
 
 
 if __name__ == '__main__':
-    print(">> server up")
 
     parser = argparse.ArgumentParser()
     parser.add_argument('port', type=int, help='server port')
     args = parser.parse_args()
+
+    print(">> server up with port", args.port)
 
     # set up an endpoint for communication with client
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -73,7 +74,7 @@ if __name__ == '__main__':
     s.listen(5)
     while True:
 
-        # step 1: connect with incoming clinet
+        # step 1: connect with client
         c, addr = s.accept()      
         print('successfully connected to', addr )
 
