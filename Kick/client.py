@@ -20,8 +20,10 @@ def up(fname):
     # https://stackoverflow.com/questions/9382045/send-a-file-through-sockets-in-python
     """
     # get endpoint from config file
-    hostname = "3.236.152.182"
-    port = 1111
+    h = fetch('remote', 'ip')
+    print(h)
+    # hostname = "3.236.152.182"
+    # port = 1111
 
     # create socket and connect with server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

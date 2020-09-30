@@ -1,5 +1,8 @@
-# PieKick
-evaluate functions on a remote machine with a single decorator.
+# Kick
+remote code execution with a single decorator.
+
+## install
+clone this repo and then run `python setup.py install`.
 
 ## example
 this code snippet executes locally. 
