@@ -1,8 +1,6 @@
-from configparser import SafeConfigParser
+from dotenv import load_dotenv, find_dotenv
 import os
 
-def fetch(section, field):
-    print(os.getcwd())
-    parser = SafeConfigParser()
-    parser.read('/config.ini')
-    return parser.get(section, field)
+def fetch(field):
+    load_dotenv(find_dotenv())
+    return os.getenv(field)
