@@ -3,7 +3,7 @@
 ## launching ec2 instance
 you can find preconfigured amis by searching "deep learning ami" for ubuntu machines.
 
-once youve launched ec2, youll need to update [config.properties](https://github.com/mynameisvinn/PieKick/blob/master/config.properties) since the client library reads from this.
+once youve launched ec2, youll need to update [.env](https://github.com/mynameisvinn/PieKick/blob/master/.env) for the client library (which needs host ip and port).
 
 ## configuring ec2 ports
 for now, enable all inbound traffic to all ports.

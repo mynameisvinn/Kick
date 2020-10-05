@@ -1,6 +1,7 @@
 import socket
 import numpy as np
 import jsonpickle
+import os
 
 from .utils import fetch
 
@@ -19,13 +20,10 @@ def up(fname):
     
     # https://stackoverflow.com/questions/9382045/send-a-file-through-sockets-in-python
     """
-    # get endpoint from config file
+    # get endpoint information from config file
     h = fetch("hostname")
     p = int(fetch("port"))  # convert str to int
-    print(h, p)
-    # hostname = "3.236.152.182"
-    # port = 1111
-
+    
     # create socket and connect with server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((h, p)) 
