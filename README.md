@@ -1,8 +1,13 @@
 # Kick
-remote code execution with a single decorator.
+remote code execution with decorators.
 
 ## install
-clone this repo and then run `python setup.py install`.
+clone this repo and then do `python setup.py install`.
+```bash
+git clone https://github.com/mynameisvinn/Kick
+cd Kick
+python setup.py install
+```
 
 ## example
 this code snippet executes locally. 
@@ -29,3 +34,4 @@ def foobar():
 
 foobar()  # foobar() remote execution
 ```
+more examples can be found [here](https://github.com/mynameisvinn/Kick/tree/master/examples)
