@@ -13,7 +13,7 @@ def fetch(field):
     os.chdir(os.path.expanduser("~"))  # change to home dir https://python-forum.io/Thread-change-to-home-directory
     
     # get path to home and then find config file
-    path = os.getcwd() + "/.kick.ini"
+    path = os.getcwd() + "/kick.ini"
     
     # read data
     config = configparser.ConfigParser()

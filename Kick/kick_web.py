@@ -1,5 +1,8 @@
-from .client import up
 import inspect
+import os
+
+from .client import up
+
 
 
 def kick_web(func):
@@ -23,7 +26,10 @@ def kick_web(func):
         # step 3: send source code to remote server
         res = up(fname)  # server's endpoints are found in config properties file
 
-        # step 4: return result
+        # step 4: delete temp file
+        os.remove("temp.py")
+
+        # step 5: return result
         return res
 
     return modified_func

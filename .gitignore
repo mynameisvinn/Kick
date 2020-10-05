@@ -10,3 +10,6 @@ data/
 piekick.pem
 Kick/connection/barfoo.py
 aws_key.pem
+Kick.egg-info/
+build/
+dist/
