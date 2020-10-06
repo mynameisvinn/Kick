@@ -1,5 +1,6 @@
 import inspect
 import os
+import ast
 
 from .client import up
 
@@ -19,6 +20,9 @@ def kick_web(func):
         # step 1: write cell entries to a single file, which will be sent to server
         fname = "temp.py"
         _copy(fname, cells)
+
+        # step 2: create requirements file so server can pip install necessary packages
+        _create_requirements(fname)
         
         # step 2: identify calling method
         _append(cells, fname)
@@ -33,6 +37,23 @@ def kick_web(func):
         return res
 
     return modified_func
+
+
+def _create_requirements(fname):
+    """generate requirements.txt from source code.
+    """
+    with open(fname) as f: 
+        source = f.read()
+    
+    # create parse tree
+    tree = ast.parse(source)
+    f = open("requirements.txt", "w")
+
+    # look for ast nodes corresponding to import
+    for statement in tree.body:
+        if isinstance(statement, ast.Import):
+            f.write(statement.names[0].name + "\n")
+    f.close()
 
 
 def _append(cells, fname):

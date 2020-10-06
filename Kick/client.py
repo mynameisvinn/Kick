@@ -28,7 +28,7 @@ def up(fname):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((h, p)) 
 
-    # send source to server
+    # read source as bytes and send bytes to server
     with open(fname, "rb") as f:
         l = f.read(1024)
     s.send(l) 
