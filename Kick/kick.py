@@ -6,7 +6,7 @@ from .client import up
 
 
 
-def kick_web(func):
+def kick(func):
 
     # grab context from calling jupyter notebook
     prev_frame = inspect.currentframe().f_back  # previous frame is the notebook
@@ -27,11 +27,12 @@ def kick_web(func):
         # step 2: identify calling method
         _append(cells, fname)
         
-        # step 3: send source code to remote server
+        # step 3: send requirements.txt and source code to remote server
         res = up(fname)  # server's endpoints are found in config properties file
 
-        # step 4: delete temp file
+        # step 4: clean up by deleting temp and requirements.txt
         os.remove("temp.py")
+        os.remove("requirements.txt")
 
         # step 5: return result
         return res

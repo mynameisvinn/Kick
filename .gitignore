@@ -13,3 +13,4 @@ aws_key.pem
 Kick.egg-info/
 build/
 dist/
+examples/requirements.txt

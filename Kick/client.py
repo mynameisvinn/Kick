@@ -28,6 +28,11 @@ def up(fname):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((h, p)) 
 
+    # read requirements as bytes and send bytes to server
+    with open("requirements.txt", "rb") as f:
+        l = f.read(1024)
+    s.send(l) 
+
     # read source as bytes and send bytes to server
     with open(fname, "rb") as f:
         l = f.read(1024)

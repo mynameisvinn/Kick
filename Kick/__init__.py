@@ -1,1 +1,1 @@
-from .kick_web import kick_web
+from .kick import kick
