@@ -29,17 +29,17 @@ def up(fname):
     s.connect((h, p)) 
 
     # read requirements as bytes and send bytes to server
-    with open("requirements.txt", "rb") as f:
-        l = f.read(1024)
-    s.send(l) 
+    # with open("requirements.txt", "rb") as f:
+        # l = f.read(1024)
+    # s.send(l) 
 
     # read source as bytes and send bytes to server
     with open(fname, "rb") as f:
-        l = f.read(1024)
+        l = f.read()
     s.send(l) 
         
     # receive results from server and unpack bytes
-    res = s.recv(1024)
+    res = s.recv(65536 * 5)
     o = from_bytes(res)  # https://markhneedham.com/blog/2018/04/07/python-serialize-deserialize-numpy-2d-arrays/
     # o = np.frombuffer(res)
     

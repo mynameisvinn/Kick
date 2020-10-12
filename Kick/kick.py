@@ -11,8 +11,8 @@ def kick(func):
     # grab context from calling jupyter notebook
     prev_frame = inspect.currentframe().f_back  # previous frame is the notebook
     callers_objects = inspect.getmembers(prev_frame)  # grab all objects from caller's global env
-    env = callers_objects[27][1]  # this slice refers to global env from jupyter notebook
-    cells =  env['_ih']  # all executed cells up to function call
+    notebook_env = callers_objects[27][1]  # this slice refers to global env from jupyter notebook
+    cells =  notebook_env['_ih']  # all executed cells up to function call
     print(">> initialize")
     
     def modified_func(*args):
@@ -46,15 +46,17 @@ def _create_requirements(fname):
     with open(fname) as f: 
         source = f.read()
     
-    # create parse tree
     tree = ast.parse(source)
-    f = open("requirements.txt", "w")
-
-    # look for ast nodes corresponding to import
+    packages = []
+    
     for statement in tree.body:
-        if isinstance(statement, ast.Import):
-            f.write(statement.names[0].name + "\n")
-    f.close()
+        if isinstance(statement, ast.Import) or isinstance(statement, ast.ImportFrom):
+            alias = statement.names[0]
+            package_name = alias.name.split(".")[0]
+            if package_name not in packages:  # avoid double counting packages
+                packages.append(package_name)
+                with open("requirements.txt", "a") as f:
+                    f.write(package_name + "\n")
 
 
 def _append(cells, fname):
