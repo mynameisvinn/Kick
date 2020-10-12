@@ -29,9 +29,9 @@ def up(fname):
     s.connect((h, p)) 
 
     # read requirements as bytes and send bytes to server
-    # with open("requirements.txt", "rb") as f:
-        # l = f.read(1024)
-    # s.send(l) 
+    with open("requirements.txt", "rb") as f:
+        l = f.read(1024)
+    s.send(l) 
 
     # read source as bytes and send bytes to server
     with open(fname, "rb") as f:
