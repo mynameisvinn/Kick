@@ -33,6 +33,7 @@ def kick(func):
         # step 4: clean up by deleting temp and requirements.txt
         os.remove("temp.py")
         os.remove("requirements.txt")
+        os.remove("results.pkl")
 
         # step 5: return result
         return res
