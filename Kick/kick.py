@@ -6,39 +6,39 @@ import subprocess
 from .client import up
 
 
-def kick(func):
-
+def kick(target):
     # grab context from calling jupyter notebook
     prev_frame = inspect.currentframe().f_back  # previous frame is the notebook
     callers_objects = inspect.getmembers(prev_frame)  # grab all objects from caller's global env
     notebook_env = callers_objects[27][1]  # this slice refers to global env from jupyter notebook
     cells =  notebook_env['_ih']  # all executed cells up to function call
-    print(">> initialize")
-    
-    def modified_func(*args):
+    print(">> initialize to", target)
 
-        # step 1: write cell entries to a single file, which will be sent to server
-        fname = "temp.py"
-        _copy(fname, cells)
+    def mid(func):
+        def modified_func(*args):
 
-        # step 2: create requirements file so server can pip install necessary packages
-        _create_requirements2(fname)
-        
-        # step 2: identify calling method
-        _append(cells, fname)
-        
-        # step 3: send requirements.txt and source code to remote server
-        res = up(fname)  # server's endpoints are found in config properties file
+            # step 1: write cell entries to a single file, which will be sent to server
+            fname = "temp.py"
+            _copy(fname, cells)
 
-        # step 4: clean up by deleting temp and requirements.txt
-        os.remove("temp.py")
-        os.remove("requirements.txt")
-        os.remove("results.pkl")
+            # step 2: create requirements file so server can pip install necessary packages
+            _create_requirements(fname)
+            
+            # step 2: identify calling method
+            _append(cells, fname)
+            
+            # step 3: send requirements.txt and source code to remote server
+            res = up(fname)  # server's endpoints are found in config properties file
 
-        # step 5: return result
-        return res
+            # step 4: clean up by deleting temp and requirements.txt
+            os.remove("temp.py")
+            os.remove("requirements.txt")
+            os.remove("results.pkl")
 
-    return modified_func
+            # step 5: return result
+            return res
+        return modified_func
+    return mid
 
 
 def _create_requirements(fname):
@@ -63,13 +63,11 @@ def _create_requirements(fname):
 
 
 def _create_requirements2(fname):
-	"""generate requirements.txt from source code.
+    """generate requirements.txt from source code.
 
-	generate requirements.txt, which will be used by remote to install necessary packages.
+    generate requirements.txt, which will be used by remote to install necessary packages.
     """
-	ret = subprocess.run(["pipreqsnb", fname, "--savepath", "requirements.txt"])
-	if ret != 0:
-		raise ValueError
+    ret = subprocess.run(["pipreqsnb", fname, "--savepath", "requirements.txt"])
 
 
 def _append(cells, fname):
