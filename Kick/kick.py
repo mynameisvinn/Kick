@@ -28,6 +28,7 @@ def kick(target):
             _append(cells, fname)
             
             # step 3: send requirements.txt and source code to remote server
+            print(">>>>>>>>>>", target)
             res = up(fname)  # server's endpoints are found in config properties file
 
             # step 4: clean up by deleting temp and requirements.txt
@@ -43,8 +44,6 @@ def kick(target):
 
 def _create_requirements(fname):
     """generate requirements.txt from source code.
-
-    DEPRECATED
     """
     with open(fname) as f: 
         source = f.read()
@@ -66,6 +65,8 @@ def _create_requirements2(fname):
     """generate requirements.txt from source code.
 
     generate requirements.txt, which will be used by remote to install necessary packages.
+
+    DEPRECATED
     """
     ret = subprocess.run(["pipreqsnb", fname, "--savepath", "requirements.txt"])
 
