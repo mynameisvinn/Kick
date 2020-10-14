@@ -1,9 +1,9 @@
 import inspect
 import os
 import ast
+import subprocess
 
 from .client import up
-
 
 
 def kick(func):
@@ -22,7 +22,7 @@ def kick(func):
         _copy(fname, cells)
 
         # step 2: create requirements file so server can pip install necessary packages
-        _create_requirements(fname)
+        _create_requirements2(fname)
         
         # step 2: identify calling method
         _append(cells, fname)
@@ -43,6 +43,8 @@ def kick(func):
 
 def _create_requirements(fname):
     """generate requirements.txt from source code.
+
+    DEPRECATED
     """
     with open(fname) as f: 
         source = f.read()
@@ -58,6 +60,16 @@ def _create_requirements(fname):
                 packages.append(package_name)
                 with open("requirements.txt", "a") as f:
                     f.write(package_name + "\n")
+
+
+def _create_requirements2(fname):
+	"""generate requirements.txt from source code.
+
+	generate requirements.txt, which will be used by remote to install necessary packages.
+    """
+	ret = subprocess.run(["pipreqsnb", fname, "--savepath", "requirements.txt"])
+	if ret != 0:
+		raise ValueError
 
 
 def _append(cells, fname):
