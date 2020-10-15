@@ -4,42 +4,54 @@ import ast
 import subprocess
 
 from .client import up
+from .store import PySwiss
 
 
-def kick(target):
+def kick(target, bucket=None):
     # grab context from calling jupyter notebook
     prev_frame = inspect.currentframe().f_back  # previous frame is the notebook
     callers_objects = inspect.getmembers(prev_frame)  # grab all objects from caller's global env
     notebook_env = callers_objects[27][1]  # this slice refers to global env
     cells =  notebook_env['_ih']  # all executed cells up to function call
-    print(">> execution on", target)
 
-    def mid(func):
-        def modified_func(*args):
+    if target == "s3":
+        def mid(func):  # func is the user function
+            def inner(arg):  # arg is arguments to user function
+                res = func(arg)
+                print("saving to s3 with key", arg)
+                client = PySwiss(bucket=bucket)
+                client.put(obj=res, key=str(arg))
+            return inner
+        return mid
+    elif target == "gpu":
+        def mid(func):
+            def modified_func(*args):
 
-            # step 1: write cell entries to a single file, which will be sent to server
-            fname = "temp.py"
-            _copy(fname, cells)
+                # step 1: write cell entries to a single file, which will be sent to server
+                fname = "temp.py"
+                _copy(fname, cells)
 
-            # step 2: create requirements file so server can pip install necessary packages
-            _create_requirements(fname)
-            
-            # step 3: identify caller
-            _append(cells, fname)
-            
-            # step 4: send requirements.txt and source code to remote server
-            print(">>>>>>>>>>", target)
-            res = up(fname)  # server's endpoints are found in config properties file
+                # step 2: create requirements file so server can pip install necessary packages
+                _create_requirements(fname)
+                
+                # step 3: identify caller
+                _append(cells, fname)
+                
+                # step 4: send requirements.txt and source code to remote server
+                print(">>>>>>>>>>", target)
+                res = up(fname)  # server's endpoints are found in config properties file
 
-            # step 5: clean up by deleting temp and requirements.txt
-            os.remove("temp.py")
-            os.remove("requirements.txt")
-            os.remove("results.pkl")
+                # step 5: clean up by deleting temp and requirements.txt
+                os.remove("temp.py")
+                os.remove("requirements.txt")
+                os.remove("results.pkl")
 
-            # step 5: return result
-            return res
-        return modified_func
-    return mid
+                # step 5: return result
+                return res
+            return modified_func
+        return mid
+    else:
+        print(">> invalid target")
 
 
 def _create_requirements(fname):
