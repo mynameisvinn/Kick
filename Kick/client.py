@@ -24,7 +24,7 @@ def up(fname):
     s.connect((h, p)) 
 
     # read requirements as bytes and send bytes to server
-    with open("requirements.txt", "rb") as f:
+    with open("temp/requirements.txt", "rb") as f:
         l = f.read(4096)  # read 1kb
     s.send(l) 
 
@@ -34,7 +34,7 @@ def up(fname):
     s.send(l)
         
     # receive and save results from server
-    with open("results.pkl",'wb') as f:
+    with open("temp/results.pkl",'wb') as f:
         while True:
             recvfile = s.recv(4096)  # read 1kb at a time
             if not recvfile: 
@@ -42,7 +42,7 @@ def up(fname):
             f.write(recvfile)
     
     # load results to memory
-    with open("results.pkl", 'rb') as f:
+    with open("temp/results.pkl", 'rb') as f:
         o = cloudpickle.load(f)
     # o = from_bytes(res)  # https://markhneedham.com/blog/2018/04/07/python-serialize-deserialize-numpy-2d-arrays/
     # o = np.frombuffer(res)

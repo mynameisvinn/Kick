@@ -8,6 +8,7 @@ class PySwiss(object):
         self.bucket = bucket
         self._check_bucket()
 
+
     def _check_bucket(self):
         """check if bucket exists in s3.
         """
@@ -16,9 +17,11 @@ class PySwiss(object):
         if self.bucket not in buckets:
             raise ValueError("Bucket does not exist")
 
+
     def put(self, obj, key):
         pickled_obj = pickle.dumps(obj)
         self.client.put_object(Body=pickled_obj, Bucket=self.bucket, Key=key)
+
 
     def get(self, key):
         try:
