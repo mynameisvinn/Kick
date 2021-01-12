@@ -1,16 +1,16 @@
 # Kick
-remote code execution with decorators.
+Remote code execution with decorators.
 
-## install
-clone this repo and then do `python setup.py install`.
+## Install
+Clone this repo and then do `python setup.py install`.
 ```bash
 git clone https://github.com/mynameisvinn/Kick
 cd Kick
-python setup.py install
+python setup.py install  # puts kick.ini in home folder
 ```
 
-## example
-this code snippet executes locally. 
+## Example
+This code snippet executes locally. 
 ```python
 def foobar():
     res = 0
@@ -21,7 +21,7 @@ def foobar():
 foobar()  # foobar() evaluated on local machine and prints 3
 ```
 
-we can evaluate `foobar()` on a remote machine (eg ec2) with a single decorator `@kick`. no `ssh`, `scp`, or moving bytes back and forth.
+We can evaluate `foobar()` on a remote machine (eg ec2) with a single decorator `@kick`. no `ssh`, `scp`, or moving bytes back and forth.
 ```python
 from kick import kick
 
@@ -34,4 +34,4 @@ def foobar():
 
 foobar()  # foobar() remote execution
 ```
-more examples can be found [here](https://github.com/mynameisvinn/Kick/tree/master/examples)
+More examples can be found [here](https://github.com/mynameisvinn/Kick/tree/master/examples)
