@@ -1,0 +1,7 @@
+boto3==1.16.10
+numpy==1.18.5
+torch==1.4.0
+jsonpickle==1.4.2
+cloudpickle==1.5.0
+dill==0.3.3
+python-dotenv==0.15.0
