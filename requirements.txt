@@ -1,5 +1,5 @@
 boto3==1.16.10
-numpy==1.18.5
+numpy==1.22.0
 torch==1.4.0
 jsonpickle==1.4.2
 cloudpickle==1.5.0
